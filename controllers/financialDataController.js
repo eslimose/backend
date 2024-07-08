@@ -1,29 +1,36 @@
 // controllers/financialDataController.js
-
 const FinancialData = require('../models/FinancialData');
 
-// Get financial data for a user
-exports.getFinancialData = async (req, res) => {
+const getFinancialData = async (req, res) => {
   try {
-    const data = await FinancialData.find({ userId: req.user.id });
+    const data = await FinancialData.find({ user: req.user.id });
     res.json(data);
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error fetching financial data:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
-// Add new financial data
-exports.addFinancialData = async (req, res) => {
-  const { category, amount } = req.body;
+const addFinancialData = async (req, res) => {
+  const { category, amount, date, type, budget, debt } = req.body;
+
   try {
-    const newData = new FinancialData({
-      userId: req.user.id,
+    const newFinancialData = new FinancialData({
+      user: req.user.id,
       category,
-      amount
+      amount,
+      date,
+      type,
+      budget,
+      debt,
     });
-    await newData.save();
-    res.json(newData);
+
+    await newFinancialData.save();
+    res.json({ success: true });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error saving financial data:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
+
+module.exports = { getFinancialData, addFinancialData };

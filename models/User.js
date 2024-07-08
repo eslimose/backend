@@ -30,6 +30,14 @@ const UserSchema = new mongoose.Schema({
   resetToken: {
     type: String,
     default: ''
+  },
+  profilePhoto: {
+    type: String,
+    default: '',
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false // Ensure this is set to true for the admin user
   }
 });
 

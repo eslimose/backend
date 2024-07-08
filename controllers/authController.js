@@ -106,7 +106,7 @@ exports.resetPassword = async (req, res) => {
   const { password } = req.body;
 
   try {
-    const decoded = jwt.verify(token, 'secret_key');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id);
 
     if (!user) {
@@ -134,34 +134,33 @@ exports.login = async (req, res) => {
 
   try {
     let user = await User.findOne({ email });
-
-    if (!user || !user.isActive) {
-      return res.status(400).json({ success: false, message: 'Invalid credentials or account not activated' });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid Credentials' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-
     if (!isMatch) {
-      return res.status(400).json({ success: false, message: 'Invalid credentials' });
+      return res.status(400).json({ message: 'Invalid Credentials' });
     }
 
     const payload = {
       user: {
         id: user.id,
-      },
+        username: user.username
+      }
     };
 
     jwt.sign(
       payload,
-      'secret_key', // Use a secure key in production
+      process.env.JWT_SECRET,
       { expiresIn: '1h' },
       (err, token) => {
         if (err) throw err;
-        res.json({ success: true, token });
+        res.json({ token, user: { username: user.username, email: user.email } });
       }
     );
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(500).send('Server Error');
   }
 };

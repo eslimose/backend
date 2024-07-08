@@ -1,5 +1,3 @@
-// routes/financialData.js
-
 const express = require('express');
 const { getFinancialData, addFinancialData } = require('../controllers/financialDataController');
 const router = express.Router();
